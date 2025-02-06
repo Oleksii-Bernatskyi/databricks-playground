@@ -1,1 +1,7 @@
-## Repo with Databricks pet project: xboost predictions on diabetes dataset full lifecycle.
+# Repo with Databricks pet project
+
+## Data
+### dataset: https://www.kaggle.com/datasets/ankushpanday1/diabetes-prediction-in-india-dataset/data
+
+## Model
+### xgboost
