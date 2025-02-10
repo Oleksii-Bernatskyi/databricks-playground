@@ -15,14 +15,10 @@ from sklearn.metrics import (
     recall_score,
     accuracy_score,
 )
+import load_preprocessed_data.load_data
 
-
-# Initialize SparkSession
-spark = pyspark.sql.SparkSession.builder.getOrCreate()
-
-# Read the data from hive and put it in pandas
-spark_df = spark.sql("SELECT * FROM hive_metastore.default.processed_df")
-df = spark_df.toPandas()
+table_name = 'processed_df'
+df = load_data(table_name)
 
 # Split the data into X and y
 X = df.drop("diabetes", axis=1)

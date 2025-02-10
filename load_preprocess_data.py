@@ -1,27 +1,19 @@
+from databricks.sdk.runtime import *
+
 import warnings
 
 warnings.filterwarnings("ignore")
 
-import pyspark.sql
 import pandas as pd
 from typing import Tuple
 from sklearn.preprocessing import StandardScaler
 
-# Initialize SparkSession
-spark = pyspark.sql.SparkSession.builder.getOrCreate()
 
-# Read the data from hive and put it in pandas
-spark_df = spark.sql("SELECT * FROM hive_metastore.default.diabetes_prediction_india")
-df_ = spark_df.toPandas()
-
-
-# Takes features and target, applies scaler to features and does train-test split
-def scale(X_: pd.DataFrame, y_: pd.Series) -> pd.DataFrame:
-    scaler = StandardScaler()
-    df_scaled = scaler.fit_transform(X_)
-    df_scaled = pd.DataFrame(df_scaled, columns=X_.columns)
-    df_scaled["diabetes"] = y_
-    return df_scaled
+def load_data(table_name_: str) -> pd.DataFrame:
+    # Read the data from hive and put it in pandas
+    spark_df = spark.read.table(f"llm_pj.default.{table_name_}")
+    df = spark_df.toPandas()
+    return df
 
 
 # Takes pd.Dataframe, transfroms categorical features into numerical features, return those new numerical features as well as target
@@ -76,14 +68,24 @@ def naive_preprocess(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
     return X_, y_
 
 
-# Apply preprocess and train-test split
-# X, y = naive_preprocess(df)
+# Takes features and target, applies scaler to features and does train-test split
+def scale(X_: pd.DataFrame, y_: pd.Series) -> pd.DataFrame:
+    scaler = StandardScaler()
+    df_scaled = scaler.fit_transform(X_)
+    df_scaled = pd.DataFrame(df_scaled, columns=X_.columns)
+    df_scaled["diabetes"] = y_
+    return df_scaled
+
+
+table_name = "diabetes_prediction_india"
+df_ = load_data(table_name)
+
+# X, y = naive_preprocess(df_)
 X, y = custom_preprocess(df_)
+
 processed_df = scale(X, y)
-
 print(processed_df.shape)
+processed_df = spark.createDataFrame(processed_df)
 
 
-spark.createDataFrame(processed_df).write.mode("overwrite").saveAsTable(
-    "hive_metastore.default.processed_df2"
-)
+processed_df.write.format("delta").mode("overwrite").saveAsTable("processed_df")
