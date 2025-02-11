@@ -15,7 +15,7 @@ from sklearn.metrics import (
     recall_score,
     accuracy_score,
 )
-import load_preprocessed_data.load_data
+from load_preprocess_data import load_data
 
 table_name = 'processed_df'
 df = load_data(table_name)
@@ -76,7 +76,7 @@ best_result = fmin(
     fn=objective,
     space=search_space,
     algo=tpe.suggest,
-    max_evals=10,
+    max_evals=100,
     trials=Trials(),
     verbose=True,
     show_progressbar=True,

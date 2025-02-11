@@ -8,14 +8,12 @@ from mlflow.models import infer_signature, set_signature
 import pyspark.sql
 from mlflow.entities import ViewType
 from mlflow.tracking import MlflowClient
+from load_preprocess_data import load_data
 from sklearn.model_selection import train_test_split
 
-# Initialize SparkSession
-spark = pyspark.sql.SparkSession.builder.getOrCreate()
 
-# Read the data from hive and put it in pandas
-spark_df = spark.sql("SELECT * FROM hive_metastore.default.processed_df")
-df = spark_df.toPandas()
+table_name = 'processed_df'
+df = load_data(table_name)
 
 # Prepare df's to use
 X = df.drop("diabetes", axis=1)
@@ -26,7 +24,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 # Select experiment
 client = MlflowClient()
-experiment = client.get_experiment("b438e5228f2c42c0bf17bcc05011775d")
+experiment = client.get_experiment("bb5a86f344a4411daf334e4d57c6f74d")
 
 # Select run with the best accuracy
 best_run = client.search_runs(
