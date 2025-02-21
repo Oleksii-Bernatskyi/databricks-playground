@@ -17,6 +17,8 @@ from sklearn.metrics import (
 )
 from load_preprocess_data import load_data
 
+mlflow.set_experiment(experiment_id="bb5a86f344a4411daf334e4d57c6f74d")
+
 table_name = 'processed_df'
 df = load_data(table_name)
 
@@ -76,7 +78,7 @@ best_result = fmin(
     fn=objective,
     space=search_space,
     algo=tpe.suggest,
-    max_evals=100,
+    max_evals=10,
     trials=Trials(),
     verbose=True,
     show_progressbar=True,

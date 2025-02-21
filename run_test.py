@@ -5,8 +5,8 @@ import subprocess
 import pyspark
 
 import importlib
-import test_load_preprocess
-importlib.reload(test_load_preprocess)
+import tests
+importlib.reload(tests)
 
 
 def run_test():
